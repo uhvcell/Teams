@@ -1,0 +1,7 @@
+{
+  "name": "UHV CELL – NBKRIST",
+  "description": "Universal Human Values Cell digital student and member verification portal using secure QR codes.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

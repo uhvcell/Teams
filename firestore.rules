@@ -1,0 +1,114 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function getAdminDoc() {
+      return get(/databases/$(database)/documents/admins/$(request.auth.uid)).data;
+    }
+
+    function isRegisteredAdmin() {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) &&
+        getAdminDoc().status == 'Active';
+    }
+
+    function isInstitutionalAdmin() {
+      return isAuthenticated() && request.auth.token.email != null && (
+        request.auth.token.email == 'admin.uhv@nbkrist.org' ||
+        request.auth.token.email.matches('.*@nbkrist\\.org$')
+      );
+    }
+
+    function isAuthorizedAdmin() {
+      return isRegisteredAdmin() || isInstitutionalAdmin();
+    }
+
+    function isSuperAdmin() {
+      return isInstitutionalAdmin() || (
+        isRegisteredAdmin() && getAdminDoc().role in ['Super Admin', 'SUPER ADMIN']
+      );
+    }
+
+    // Role-based authorization for deleting student documents (Super Admin, Admin, Coordinator allowed; Editor and Viewer blocked)
+    function canDeleteStudentDoc() {
+      return isAuthenticated() && (
+        isInstitutionalAdmin() ||
+        (isRegisteredAdmin() &&
+         getAdminDoc().role in ['Super Admin', 'SUPER ADMIN', 'Admin', 'ADMIN', 'Coordinator', 'COORDINATOR'])
+      );
+    }
+
+    // Test ping document for initial connection verification
+    match /test/{testId} {
+      allow read: if true;
+    }
+
+    // Students verification records collection (Public verification read; strictly admin-governed creation, update, delete)
+    match /students/{studentId} {
+      // Public visitors can read approved student verification information via QR verification
+      allow read: if true;
+      
+      // Strictly only authorized administrators can create student records
+      allow create: if isValidId(studentId) && isAuthorizedAdmin() &&
+        request.resource.data.keys().hasAll(['id', 'qrId', 'name', 'role', 'status']) &&
+        request.resource.data.id is string &&
+        request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 100 &&
+        request.resource.data.status in ['Active', 'Inactive'];
+
+      // Strictly only authorized administrators can update student records
+      allow update: if isValidId(studentId) && isAuthorizedAdmin() &&
+        request.resource.data.name is string && request.resource.data.name.size() <= 100 &&
+        request.resource.data.status in ['Active', 'Inactive'];
+
+      // Only authorized administrative roles can delete student records
+      allow delete: if isValidId(studentId) && canDeleteStudentDoc();
+    }
+
+    // Website Settings collection (draft and published states) - strictly admin-only write
+    match /websiteSettings/{settingId} {
+      allow read: if true;
+      allow write: if isValidId(settingId) && isAuthorizedAdmin();
+    }
+
+    // Admins collection (Super Admin has full governance; admins cannot escalate own role)
+    match /admins/{adminId} {
+      allow get: if isAuthenticated() && isValidId(adminId) && (request.auth.uid == adminId || isAuthorizedAdmin());
+      allow list: if isAuthorizedAdmin();
+      allow create: if isSuperAdmin() && isValidId(adminId);
+      allow update: if isAuthenticated() && isValidId(adminId) && (
+        isSuperAdmin() || (
+          request.auth.uid == adminId &&
+          request.resource.data.role == resource.data.role
+        )
+      );
+      allow delete: if isSuperAdmin() && isValidId(adminId);
+    }
+
+    // Announcements bulletin collection - strictly admin-only modification
+    match /announcements/{announcementId} {
+      allow read: if true;
+      allow create, update, delete: if isValidId(announcementId) && isAuthorizedAdmin();
+    }
+
+    // Events and Workshops collection - strictly admin-only modification
+    match /events/{eventId} {
+      allow read: if true;
+      allow create, update, delete: if isValidId(eventId) && isAuthorizedAdmin();
+    }
+
+    // Activity Logs audit trail collection
+    match /activityLogs/{logId} {
+      allow read: if isAuthorizedAdmin();
+      allow create: if isAuthenticated() && isValidId(logId);
+    }
+  }
+}

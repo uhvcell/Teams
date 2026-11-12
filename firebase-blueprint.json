@@ -1,0 +1,255 @@
+{
+  "entities": {
+    "Student": {
+      "title": "Student",
+      "description": "Student or member enrolled in Universal Human Values Cell activities",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the student"
+        },
+        "verificationToken": {
+          "type": "string",
+          "description": "Unguessable Zero-ID verification token used for privacy-safe public QR verification"
+        },
+        "name": {
+          "type": "string",
+          "description": "Full official name of the student"
+        },
+        "role": {
+          "type": "string",
+          "description": "Designation or membership tier in UHV Cell"
+        },
+        "position": {
+          "type": "string",
+          "description": "Selected Position / Team (e.g. President, Vice-President, Technical Team, Event Management Team, Designing Team, Innovation Team, Core Team, Coordinator, Volunteer)"
+        },
+        "department": {
+          "type": "string",
+          "description": "Academic department or discipline"
+        },
+        "yearOfStudy": {
+          "type": "string",
+          "description": "Current year of study (e.g. 1st Year, 2nd Year, 3rd Year, 4th Year)"
+        },
+        "academicYear": {
+          "type": "string",
+          "description": "Active academic session (e.g. 2025-2026)"
+        },
+        "joinedDate": {
+          "type": "string",
+          "description": "ISO date string of joining"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Active", "Inactive", "Pending"],
+          "description": "Membership validity status"
+        },
+        "avatarUrl": {
+          "type": "string",
+          "description": "Optional profile photo URL"
+        },
+        "displayOrder": {
+          "type": "number",
+          "description": "Manual display sequence number within the member's specific team (1, 2, 3...)"
+        },
+        "attendanceCount": {
+          "type": "number",
+          "description": "Total workshop sessions attended"
+        },
+        "workshopCount": {
+          "type": "number",
+          "description": "Total core workshops completed"
+        }
+      },
+      "required": ["id", "verificationToken", "name", "role", "department", "academicYear", "status"]
+    },
+    "WebsiteSettings": {
+      "title": "WebsiteSettings",
+      "description": "Portal layout, branding, hero, and theme settings",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Config document identifier (e.g. current, draft)"
+        },
+        "branding": {
+          "type": "object",
+          "description": "Branding titles and logo configuration"
+        },
+        "hero": {
+          "type": "object",
+          "description": "Hero section content, quotes, and badges"
+        },
+        "contact": {
+          "type": "object",
+          "description": "Official contact details and emergency desk"
+        },
+        "defaultAcademicYear": {
+          "type": "string",
+          "description": "Current default academic cycle"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp of last modification"
+        },
+        "updatedBy": {
+          "type": "string",
+          "description": "Admin identity that made the modification"
+        }
+      },
+      "required": ["id", "branding", "hero"]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "Authorized administrator or faculty coordinator account",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Firebase Auth UID or admin identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Admin full display name"
+        },
+        "email": {
+          "type": "string",
+          "description": "Official institutional email address"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["Super Admin", "Staff Admin", "Faculty Coordinator"],
+          "description": "Role level defining permission scope"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Active", "Inactive", "Suspended"],
+          "description": "Account status"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Account creation timestamp"
+        },
+        "lastLogin": {
+          "type": "string",
+          "description": "Last authenticated access timestamp"
+        }
+      },
+      "required": ["id", "name", "email", "role", "status"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "description": "Official bulletin notice published by UHV Cell",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Announcement unique ID"
+        },
+        "title": {
+          "type": "string",
+          "description": "Notice headline"
+        },
+        "content": {
+          "type": "string",
+          "description": "Notice body copy"
+        },
+        "category": {
+          "type": "string",
+          "description": "Notice classification"
+        },
+        "date": {
+          "type": "string",
+          "description": "Date of announcement"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["Normal", "High", "Urgent"],
+          "description": "Importance level"
+        },
+        "isPinned": {
+          "type": "boolean",
+          "description": "Whether pinned to the top"
+        },
+        "authorName": {
+          "type": "string",
+          "description": "Name of publishing admin"
+        }
+      },
+      "required": ["id", "title", "content", "category", "date"]
+    },
+    "Event": {
+      "title": "Event",
+      "description": "Upcoming or completed UHV workshop, seminar, or orientation",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Event unique identifier"
+        },
+        "title": {
+          "type": "string",
+          "description": "Event title"
+        },
+        "theme": {
+          "type": "string",
+          "description": "Core UHV theme explored"
+        },
+        "description": {
+          "type": "string",
+          "description": "Event description and objectives"
+        },
+        "date": {
+          "type": "string",
+          "description": "Scheduled event date"
+        },
+        "time": {
+          "type": "string",
+          "description": "Scheduled event time"
+        },
+        "venue": {
+          "type": "string",
+          "description": "Physical room or hall venue"
+        },
+        "coordinator": {
+          "type": "string",
+          "description": "Faculty or student in charge"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Upcoming", "Completed", "Ongoing"],
+          "description": "Event lifecycle status"
+        },
+        "attendeeCount": {
+          "type": "number",
+          "description": "Total participants attended or registered"
+        }
+      },
+      "required": ["id", "title", "theme", "date", "venue", "status"]
+    }
+  },
+  "firestore": {
+    "/students/{studentId}": {
+      "schema": "Student",
+      "description": "All student and member documents verified by UHV Cell"
+    },
+    "/websiteSettings/{settingId}": {
+      "schema": "WebsiteSettings",
+      "description": "Portal configurations including current published and draft states"
+    },
+    "/admins/{adminId}": {
+      "schema": "Admin",
+      "description": "Admin identity and role authorization records"
+    },
+    "/announcements/{announcementId}": {
+      "schema": "Announcement",
+      "description": "Public bulletin board notices and updates"
+    },
+    "/events/{eventId}": {
+      "schema": "Event",
+      "description": "UHV workshops, camps, and guest lectures"
+    }
+  }
+}
